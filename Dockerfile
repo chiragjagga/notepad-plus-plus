@@ -22,6 +22,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
 ENV DISPLAY=:99
 ENV WINEPREFIX=/root/.wine
 ENV WINEARCH=win64
+ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Install Python packages required for testing
 RUN pip3 install --no-cache-dir \

@@ -43,9 +43,37 @@ case "$MODE" in
     
   new)
     echo "Running new null pointer validation tests..." | tee -a "$TEST_LOG"
-    # Execute new pytest cases
-    pytest PowerEditor/Test/apiValidator/test_null_allocations.py -v 2>&1 | tee -a "$TEST_LOG"
-    STATUS=${PIPESTATUS[0]}
+    
+    # Locate the compiled Notepad++ binary
+    NPP_BIN=""
+    for path in "PowerEditor/bin/notepad++.exe" "PowerEditor/visual.net/x64/Release/notepad++.exe"; do
+      if [ -f "$path" ]; then
+        NPP_BIN="$path"
+        break
+      fi
+    done
+    
+    if [ -z "$NPP_BIN" ]; then
+      echo "ERROR: notepad++.exe not found. Build the project first." | tee -a "$TEST_LOG"
+      STATUS=1
+    else
+      # Start Notepad++ in the background under Wine
+      wine "$NPP_BIN" -noPlugin -nosession &
+      NPP_PID=$!
+      sleep 3 # Wait for Wine and the editor window to initialize
+      
+      # Execute new pytest cases
+      if [ -n "$OUTPUT_PATH" ]; then
+        pytest PowerEditor/Test/apiValidator/test_null_allocations.py -v --junitxml="$OUTPUT_PATH" 2>&1 | tee -a "$TEST_LOG"
+      else
+        pytest PowerEditor/Test/apiValidator/test_null_allocations.py -v 2>&1 | tee -a "$TEST_LOG"
+      fi
+      STATUS=${PIPESTATUS[0]}
+      
+      # Gracefully close and kill any remaining wine threads
+      kill "$NPP_PID" 2>/dev/null || true
+      wineserver -k 2>/dev/null || true
+    fi
     ;;
     
   *)
@@ -57,8 +85,8 @@ esac
 # Write output to JUnit XML
 if [ -n "$OUTPUT_PATH" ]; then
   if [ "$MODE" = "new" ]; then
-    # Generate native pytest JUnit XML report for the new tests
-    pytest PowerEditor/Test/apiValidator/test_null_allocations.py --junitxml="$OUTPUT_PATH" >/dev/null 2>&1 || true
+    # Already generated during test execution above
+    true
   else
     # Fallback: Manually generate a valid JUnit XML structure for base checks (no code modifications)
     if [ "$STATUS" -eq 0 ]; then
