@@ -46,12 +46,33 @@ case "$MODE" in
     
     # Locate the compiled Notepad++ binary
     NPP_BIN=""
-    for path in "PowerEditor/bin/notepad++.exe" "PowerEditor/visual.net/x64/Release/notepad++.exe"; do
+    for path in \
+      "bin.x86_64/notepad++.exe" \
+      "bin.x86_64-debug/notepad++.exe" \
+      "PowerEditor/bin64/Notepad++.exe" \
+      "PowerEditor/bin64/notepad++.exe" \
+      "PowerEditor/bin/Notepad++.exe" \
+      "PowerEditor/bin/notepad++.exe" \
+      "PowerEditor/visual.net/x64/Release/Notepad++.exe" \
+      "PowerEditor/visual.net/x64/Release/notepad++.exe" \
+      "PowerEditor/visual.net/x64/Debug/Notepad++.exe" \
+      "PowerEditor/visual.net/x64/Debug/notepad++.exe" \
+      "PowerEditor/visual.net/Release/Notepad++.exe" \
+      "PowerEditor/visual.net/Release/notepad++.exe" \
+      "PowerEditor/visual.net/Debug/Notepad++.exe" \
+      "PowerEditor/visual.net/Debug/notepad++.exe" \
+      "bin.i686/notepad++.exe" \
+      "bin.i686-debug/notepad++.exe"; do
       if [ -f "$path" ]; then
         NPP_BIN="$path"
         break
       fi
     done
+    
+    if [ -z "$NPP_BIN" ]; then
+      # Fallback: search recursively for the binary
+      NPP_BIN=$(find . -maxdepth 4 -type f -iname "notepad++.exe" -print -quit 2>/dev/null || true)
+    fi
     
     if [ -z "$NPP_BIN" ]; then
       echo "ERROR: notepad++.exe not found. Build the project first." | tee -a "$TEST_LOG"
