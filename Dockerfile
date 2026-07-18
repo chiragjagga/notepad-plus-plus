@@ -1,5 +1,5 @@
 # Start from the official C++ language base image (Debian-based)
-FROM gcc:12
+FROM public.ecr.aws/d3j8x8q7/olympus-base-cpp:latest
 
 # Prevent interactive prompts during package installation
 ENV DEBIAN_FRONTEND=noninteractive
