@@ -36,8 +36,11 @@ WORKDIR /app
 # Copy the repository source files into the container
 COPY . .
 
+# Run the pre-build generator script using Wine/Xvfb to create version headers
+RUN xvfb-run wine cmd.exe /C "PowerEditor/src/NppLibsVersionH-generator.bat"
+
 # Compile the Notepad++ application using MinGW cross-compiler
-RUN make -C PowerEditor/gcc -f makefile CROSS_COMPILE=x86_64-w64-mingw32- -j$(nproc)
+RUN make -C PowerEditor/gcc -f makefile CROSS_COMPILE=x86_64-w64-mingw32- PREBUILD_EVENT_CMD="true" -j$(nproc)
 
 # Auto-start Xvfb server in bash sessions so Wine has an active display buffer
 RUN echo "Xvfb :99 -screen 0 1024x768x16 &" >> /root/.bashrc

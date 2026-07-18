@@ -76,7 +76,7 @@ case "$MODE" in
     
     if [ -z "$NPP_BIN" ]; then
       echo "notepad++.exe not found. Compiling the project inside the container..." | tee -a "$TEST_LOG"
-      make -C PowerEditor/gcc -f makefile CROSS_COMPILE=x86_64-w64-mingw32- -j$(nproc) 2>&1 | tee -a "$TEST_LOG"
+      make -C PowerEditor/gcc -f makefile CROSS_COMPILE=x86_64-w64-mingw32- PREBUILD_EVENT_CMD="true" -j$(nproc) 2>&1 | tee -a "$TEST_LOG"
       if [ ${PIPESTATUS[0]} -ne 0 ]; then
         echo "ERROR: Compilation failed." | tee -a "$TEST_LOG"
         STATUS=1
