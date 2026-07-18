@@ -33,6 +33,12 @@ RUN pip3 install --no-cache-dir \
 # Create and set workspace directory to /app
 WORKDIR /app
 
+# Copy the repository source files into the container
+COPY . .
+
+# Compile the Notepad++ application using MinGW cross-compiler
+RUN make -C PowerEditor/gcc -f makefile CROSS_COMPILE=x86_64-w64-mingw32- -j$(nproc)
+
 # Auto-start Xvfb server in bash sessions so Wine has an active display buffer
 RUN echo "Xvfb :99 -screen 0 1024x768x16 &" >> /root/.bashrc
 

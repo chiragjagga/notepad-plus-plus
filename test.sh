@@ -75,7 +75,22 @@ case "$MODE" in
     fi
     
     if [ -z "$NPP_BIN" ]; then
-      echo "ERROR: notepad++.exe not found. Build the project first." | tee -a "$TEST_LOG"
+      echo "notepad++.exe not found. Compiling the project inside the container..." | tee -a "$TEST_LOG"
+      make -C PowerEditor/gcc -f makefile CROSS_COMPILE=x86_64-w64-mingw32- -j$(nproc) 2>&1 | tee -a "$TEST_LOG"
+      if [ ${PIPESTATUS[0]} -ne 0 ]; then
+        echo "ERROR: Compilation failed." | tee -a "$TEST_LOG"
+        STATUS=1
+      else
+        # Find it again after compilation
+        NPP_BIN="bin.x86_64/notepad++.exe"
+        if [ ! -f "$NPP_BIN" ]; then
+          NPP_BIN=$(find . -maxdepth 4 -type f -iname "notepad++.exe" -print -quit 2>/dev/null || true)
+        fi
+      fi
+    fi
+    
+    if [ -z "$NPP_BIN" ]; then
+      echo "ERROR: notepad++.exe not found. Build failed." | tee -a "$TEST_LOG"
       STATUS=1
     else
       # Start Notepad++ in the background under Wine
