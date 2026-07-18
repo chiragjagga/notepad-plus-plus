@@ -25,6 +25,17 @@ ENV WINEPREFIX=/root/.wine
 ENV WINEARCH=win64
 ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
+# Create a redirect directory for MinGW tools to map standard compiler names to MinGW cross-compilers
+RUN mkdir -p /usr/local/bin/mingw-redirect && \
+    ln -s /usr/bin/x86_64-w64-mingw32-g++ /usr/local/bin/mingw-redirect/g++ && \
+    ln -s /usr/bin/x86_64-w64-mingw32-gcc /usr/local/bin/mingw-redirect/gcc && \
+    ln -s /usr/bin/x86_64-w64-mingw32-ar /usr/local/bin/mingw-redirect/ar && \
+    ln -s /usr/bin/x86_64-w64-mingw32-windres /usr/local/bin/mingw-redirect/windres && \
+    ln -s /usr/bin/x86_64-w64-mingw32-ranlib /usr/local/bin/mingw-redirect/ranlib
+
+# Prepend the redirect directory to PATH so standard build tools execute MinGW-w64 automatically
+ENV PATH=/usr/local/bin/mingw-redirect:$PATH
+
 # Install Python packages required for testing
 RUN pip3 install --no-cache-dir \
     pytest \
@@ -41,7 +52,7 @@ COPY . .
 RUN xvfb-run wine cmd.exe /C "PowerEditor/src/NppLibsVersionH-generator.bat"
 
 # Compile the Notepad++ application using MinGW cross-compiler
-RUN make -C PowerEditor/gcc -f makefile CXX=x86_64-w64-mingw32-g++ CC=x86_64-w64-mingw32-gcc AR=x86_64-w64-mingw32-ar RC=x86_64-w64-mingw32-windres PREBUILD_EVENT_CMD="true" -j$(nproc)
+RUN make -C PowerEditor/gcc -f makefile PREBUILD_EVENT_CMD="true" -j$(nproc)
 
 # Auto-start Xvfb server in bash sessions so Wine has an active display buffer
 RUN echo "Xvfb :99 -screen 0 1024x768x16 &" >> /root/.bashrc
