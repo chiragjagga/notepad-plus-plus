@@ -7,10 +7,10 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v3
+        uses: actions/checkout@v4
 
       - name: Set up Docker Buildx
-        uses: docker/setup-buildx-action@v2
+        uses: docker/setup-buildx-action@v3
 
       - name: Build Docker Image
         run: |
@@ -25,7 +25,7 @@ jobs:
           docker run --rm --network none -v ${{ github.workspace }}:/app npp-test-runner ./test.sh --output_path /app/new_results.xml new
 
       - name: Publish Test Results
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: junit-reports
           path: |
