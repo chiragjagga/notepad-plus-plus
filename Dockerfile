@@ -27,8 +27,8 @@ ENV PIP_BREAK_SYSTEM_PACKAGES=1
 
 # Create a redirect directory for MinGW tools to map standard compiler names to MinGW cross-compilers
 RUN mkdir -p /usr/local/bin/mingw-redirect && \
-    ln -s /usr/bin/x86_64-w64-mingw32-g++ /usr/local/bin/mingw-redirect/g++ && \
-    ln -s /usr/bin/x86_64-w64-mingw32-gcc /usr/local/bin/mingw-redirect/gcc && \
+    ln -s /usr/bin/x86_64-w64-mingw32-g++-posix /usr/local/bin/mingw-redirect/g++ && \
+    ln -s /usr/bin/x86_64-w64-mingw32-gcc-posix /usr/local/bin/mingw-redirect/gcc && \
     ln -s /usr/bin/x86_64-w64-mingw32-ar /usr/local/bin/mingw-redirect/ar && \
     ln -s /usr/bin/x86_64-w64-mingw32-windres /usr/local/bin/mingw-redirect/windres && \
     ln -s /usr/bin/x86_64-w64-mingw32-ranlib /usr/local/bin/mingw-redirect/ranlib
