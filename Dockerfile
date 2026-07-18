@@ -14,6 +14,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     wine64 \
     wine \
     xvfb \
+    xauth \
     python3-pip \
     python3-setuptools \
     && rm -rf /var/lib/apt/lists/*
